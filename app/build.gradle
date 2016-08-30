@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         applicationId "co.runster.runster"
+        multiDexEnabled true
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
