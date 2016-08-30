@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "827974717747",
+    "firebase_url": "https://runstergps.firebaseio.com",
+    "project_id": "runstergps",
+    "storage_bucket": "runstergps.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827974717747:android:6f3411d152517820",
+        "android_client_info": {
+          "package_name": "co.runster.runster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827974717747-jtsi5kpenqii9o86sifpu6qohvg20ukm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJLyVWIhBbSYRsagIWmu9SJVlB31jj974"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
