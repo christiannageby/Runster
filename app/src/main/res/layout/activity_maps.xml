@@ -6,6 +6,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Runster"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:background="#0649d2"
+        android:textSize="35dp"
+        android:textAlignment="center"
+        android:textColor="#ffffff" />
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
