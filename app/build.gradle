@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "co.runster.runster"
         multiDexEnabled true
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -25,5 +25,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.android.support:design:23.0.1'
 }
 apply plugin: 'com.google.gms.google-services'
