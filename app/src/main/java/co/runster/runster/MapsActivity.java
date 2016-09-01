@@ -60,8 +60,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //vad som händer med kartan
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        map.addMarker(new MarkerOptions().position(new LatLng(1, 2)));
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+        //region CHECK_GPS_STATUS
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        //endregion
+
+        Location lastLocation = locationManager.getLastKnownLocation(provider);
+        map.addMarker(new MarkerOptions().position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
     }
 
 }
