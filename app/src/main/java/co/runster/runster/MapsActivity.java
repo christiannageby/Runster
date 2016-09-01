@@ -5,9 +5,12 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,13 +28,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //vad som händer när appen startas
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_maps);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        //region MAP_SEGMENT_SETUP
+
+        //Välj map-segmentet och använd det till kartan
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //endregion
+
+        //region MENU_BUTTON_CLICK
+        //definera en Floation button till menyknappen
+
+        final FloatingActionButton menu = (FloatingActionButton) findViewById(R.id.menuBtn);
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //vad som ska hända när man trycker på kanppen
+                Toast.makeText(getApplicationContext(), "this is my Toast message!!! =)", Toast.LENGTH_LONG).show();
+            }
+        });
+        //endregion
+
 
     }
 

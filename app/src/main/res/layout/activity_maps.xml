@@ -25,11 +25,13 @@ android:layout_height="match_parent">
         tools:context="co.runster.runster.MapsActivity" />
 
     <android.support.design.widget.FloatingActionButton
+        android:id = "@+id/menuBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left|end"
         android:layout_margin="20dp"
-        android:src="@drawable/ic_media_play"
+        android:background="@color/colorPrimary"
+        android:src="@drawable/ic_setting_dark"
         app:layout_anchor="@id/map"
         app:layout_anchorGravity="bottom|left|end" />
 
