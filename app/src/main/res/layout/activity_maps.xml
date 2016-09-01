@@ -14,6 +14,12 @@ android:layout_height="match_parent">
         android:background="@color/colorPrimary"
         android:title="@string/app_name"/>
 
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id = "@+id/len"
+        android:text="0"
+        android:textColor="#000"/>
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
