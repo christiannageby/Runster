@@ -15,37 +15,18 @@ import android.widget.Toolbar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationSource.OnLocationChangedListener {
 
     private GoogleMap map;
-
-    public LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    public Criteria criteria = new Criteria();
-    public String provider = locationManager.getBestProvider(criteria, true);
-
-    public Location lastLocation = locationManager.getLastKnownLocation(provider);
-
-    public LatLng lastPos = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-
-    public float distance = 0;
-
-    //få avståndet mellan 2 punkter i meter
-    public float getDistance(LatLng my_latlong, LatLng frnd_latlong) {
-        Location l1 = new Location("One");
-        l1.setLatitude(my_latlong.latitude);
-        l1.setLongitude(my_latlong.longitude);
-
-        Location l2 = new Location("Two");
-        l2.setLatitude(frnd_latlong.latitude);
-        l2.setLongitude(frnd_latlong.longitude);
-
-        return l1.distanceTo(l2);
-    }
+    public Marker myMkr;
 
     @Override
     //vad som händer när appen startas
@@ -77,26 +58,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 //vad som ska hända när man trycker på kanppen
-                Toast.makeText(getApplicationContext(), "this is my Toast message!!! =)", Toast.LENGTH_LONG).show();
+                moveMkr(new LatLng(1, 1));
             }
         });
         //endregion
 
-
     }
 
+    //denna funktion flyttar användarens positionsindikator till en  ny postion
+    public void moveMkr(LatLng newLocation){
+        myMkr.setPosition(newLocation);
+        map.moveCamera(CameraUpdateFactory.newLatLng(newLocation));
+    }
 
     @Override
     //vad som händer med kartan
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        map.addMarker(new MarkerOptions().position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        //region LOCATION_PERMISSION_CHECK
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        //endregion_
+
+        Location lastLocation = locationManager.getLastKnownLocation(provider);
+
+        myMkr = map.addMarker(new MarkerOptions().position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+
+        //flyttar kameran till användarens position
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+
+        //sätter zoom nivån till 17.0
+        map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
     }
 
-    @Override
-    public void onMyLocationChange(Location location) {
-        distance++;
-        lastPos = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+    //vad som händer när användaren förflyttar sig
 
+    @Override
+    public void onLocationChanged(Location location) {
+        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
     }
 }
