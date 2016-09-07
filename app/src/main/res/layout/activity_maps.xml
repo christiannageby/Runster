@@ -39,6 +39,7 @@ android:layout_height="match_parent">
         android:background="@color/colorPrimary"
         android:src="@drawable/ic_setting_dark"
         app:layout_anchor="@id/map"
-        app:layout_anchorGravity="bottom|left|end" />
+        app:layout_anchorGravity="bottom|left|end"
+        android:onClick="menuClick" />
 
 </android.support.design.widget.CoordinatorLayout>
