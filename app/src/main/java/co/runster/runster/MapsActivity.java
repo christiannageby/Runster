@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -20,10 +21,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationSource.OnLocationChangedListener{
 
     private GoogleMap map;
     public Marker YouPos;
+
+    //Initiera en ny PositionManager som används för att komma åt enhetens platsinfo
+    public LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    //Initiera en kriterie variabel
+    public Criteria criteria = new Criteria();
+
+    //få den bästa gps leverantören
+    public String provider = locationManager.getBestProvider(criteria, true);
+    //få den senaste positionen uppdaterat var 5e sekund
+    public Location lastLocation = locationManager.getLastKnownLocation(provider);
+
+
 
     @Override
     //vad som händer när appen startas
@@ -54,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.moveCamera(CameraUpdateFactory.newLatLng(newLocation));
     }
 
+    //denna funktion blir exekverad när man trycker på menuknappen
     public void menuClick(View view){
         moveMkr(new LatLng(1,2));
     }
@@ -61,31 +75,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     //vad som händer med kartan
     public void onMapReady(GoogleMap googleMap) {
+        //ge Kartvariabeln ett värde
         map = googleMap;
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        //region LOCATION_PERMISSION_CHECK
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        //endregion_
-
-        Location lastLocation = locationManager.getLastKnownLocation(provider);
-
-
-        //initiera spelarens
-        YouPos = map.addMarker(new MarkerOptions().position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
-               .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
-
+        //initiera spelarens positionsmarkör
+        YouPos = map.addMarker(new MarkerOptions().position(
+                //Nuvarande position(När appen startas)
+                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())
+        ).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
 
         //sätter zoom nivån till 17.0
         map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
-
-
     }
 
     //vad som händer när användaren förflyttar sig
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
 }
