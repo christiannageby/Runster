@@ -95,9 +95,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         YouPos = map.addMarker(new MarkerOptions().position(
         new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+        map.getUiSettings().setRotateGesturesEnabled(false);
 
         //sätter zoom nivån till 17.0
-        map.animateCamera(CameraUpdateFactory.zoomTo(27.0f));
+        map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
 
         //flytta kameran & markern till nuvarnade kordinater
         map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
@@ -106,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
+        Toast.makeText(getApplicationContext(), "GPS Connected", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -118,12 +119,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(getApplicationContext(), "GPS connection failed", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(getApplicationContext(),
-                "Latitude: " + location.getLatitude() + " Longitude: " + location.getLongitude(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Position changed", Toast.LENGTH_SHORT).show();
     }
 }
