@@ -45,10 +45,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //få den senaste positionen uppdaterat var 5e sekund
     public Location lastLocation;
 
+    //
+
     @Override
     //vad som händer när appen startas
     protected void onCreate(Bundle savedInstanceState) {
         //kolla gps-postionen och gps-status
+
         //region CHECK_GPS_STATUS
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -63,14 +66,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         provider = locationManager.getBestProvider(criteria, true);
         lastLocation = locationManager.getLastKnownLocation(provider);
 
+
+
+        //kolla om positionen är är  i bruk och om lat-longituden är större en 0
+        if(lastLocation.getLatitude() > 0 && lastLocation.getLongitude() > 0){
+            //Toast.makeText(getApplicationContext(), "null-pointer Execption", Toast.LENGTH_LONG).show();
+            AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+            alertDialog.setTitle("GPS-error");
+            alertDialog.setMessage("An error has occured please restart the application");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close Runster",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            System.exit(1);
+                        }
+                    });
+            alertDialog.show();
+        }
+
         //region MAP_SEGMENT_SETUP
 
-        //Välj map-segmentet och använd det till kartan
+            //Välj map-segmentet och använd det till kartan
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
 
-        //endregion
+            //endregion
+
     }
 
 
@@ -88,20 +109,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     //vad som händer med kartan
     public void onMapReady(GoogleMap googleMap) {
+
         //ge Kartvariabeln ett värde
         map = googleMap;
+        //om positionen inte är tom
+        //lägg till en position för markören
+        if(lastLocation != null) {
+            //initiera spelarens positionsmarkör
+            YouPos = map.addMarker(new MarkerOptions().position(
+                    new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+            map.getUiSettings().setRotateGesturesEnabled(false);
 
-        //initiera spelarens positionsmarkör
-        YouPos = map.addMarker(new MarkerOptions().position(
-        new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
-        map.getUiSettings().setRotateGesturesEnabled(false);
+            //sätter zoom nivån till 17.0
+            map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
 
-        //sätter zoom nivån till 17.0
-        map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
-
-        //flytta kameran & markern till nuvarnade kordinater
-        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+            //flytta kameran & markern till nuvarnade kordinater
+            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+        }
     }
 
 
@@ -114,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnectionSuspended(int i) {
         Toast.makeText(getApplicationContext(), "The application was closed because the gps signal is unavailable", Toast.LENGTH_LONG)
                 .show();
-        System.exit(1);
+        //System.exit(1);
     }
 
     @Override
