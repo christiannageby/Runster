@@ -11,7 +11,7 @@
 
 **SVT-Triangeln**
 
-*S = V*T*
+*S = V x T *
 
 *V = S/T*
 
