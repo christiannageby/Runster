@@ -1,2 +1,4 @@
 # Runster
-###REGLER
+
+###Applikationen:
+* Vid Rörelse
