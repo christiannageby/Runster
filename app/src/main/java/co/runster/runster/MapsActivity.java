@@ -67,6 +67,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setFastestInterval(1000);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        lastLocation = location;
+        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
+    }
+
 
     public void moveMkr(LatLng newLocation) {
         YouPos.setPosition(newLocation);
@@ -82,14 +88,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.getUiSettings().setRotateGesturesEnabled(false);
-        map.setMapType(2);
-        map.setMinZoomPreference(16.0f);
+        map.setMapType(1);
+        map.setMinZoomPreference(18.0f);
         map.setMaxZoomPreference(18.0f);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i("runster: ", "Location services connected.");
         //region PermissionsCheck
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -127,13 +132,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-        Log.i("koffsa", "Position mottagen");
-        lastLocation = location;
-    }
-
-
-    @Override
     protected void onResume() {
         super.onResume();
         mGoogleApiClient.connect();
@@ -143,6 +141,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPause() {
         super.onPause();
         if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
     }
