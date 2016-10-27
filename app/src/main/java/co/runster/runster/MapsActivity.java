@@ -36,7 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private LocationManager locationManager;
     private String provider;
@@ -53,16 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        Criteria c = new Criteria();
-        provider = locationManager.getBestProvider(c, false);
-
-        //region PERM_CHK
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        //endregion
-        lastLocation = locationManager.getLastKnownLocation(provider);
     }
 
     public void moveMkr(LatLng newLocation) {
@@ -87,16 +77,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
         map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
-        lastLocation = location;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 }
