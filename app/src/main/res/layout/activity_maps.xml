@@ -11,15 +11,9 @@ android:layout_height="match_parent">
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="25dp"
+        android:textColorPrimary="#fff"
         android:background="@color/colorPrimary"
         android:title="@string/app_name"/>
-
-    <android.support.v7.widget.AppCompatTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id = "@+id/len"
-        android:text="0"
-        android:textColor="#000"/>
 
     <TextView
         android:layout_width="match_parent"

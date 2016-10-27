@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -35,16 +36,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
-    private GoogleApiClient mGoogleApiClient;
+    private LocationManager locationManager;
+    private String provider;
+
     private GoogleMap map;
-    private LocationRequest mLocationRequest;
     public Marker YouPos;
     public Location lastLocation;
-    public Boolean MarkerSet = false;
-    public boolean FirstLocationUpdate = true;
-
 
     @Override
     //vad som händer när appen startas
@@ -55,20 +54,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+        Criteria c = new Criteria();
+        provider = locationManager.getBestProvider(c, false);
 
+        //region PERM_CHK
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        //endregion
+        lastLocation = locationManager.getLastKnownLocation(provider);
     }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        lastLocation = location;
-        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
-    }
-
 
     public void moveMkr(LatLng newLocation) {
         YouPos.setPosition(newLocation);
@@ -87,63 +82,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.setMapType(1);
         map.setMinZoomPreference(18.0f);
         map.setMaxZoomPreference(18.0f);
+
+        YouPos = map.addMarker(new MarkerOptions().position(
+                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        //region PermissionsCheck
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        //endregion
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        if (location == null){
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        }else{
-            YouPos = map.addMarker(new MarkerOptions().position(
-                    new LatLng(location.getLatitude(), location.getLongitude()))
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
-            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.i("Rusnter: ", "Location services suspended. Please reconnect.");
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(this, 9000);
-            } catch (IntentSender.SendIntentException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.i("runster", "Location services connection failed with code " + connectionResult.getErrorCode());
-        }
+    public void onLocationChanged(Location location) {
+        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
+        lastLocation = location;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mGoogleApiClient.connect();
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(1000)
-                .setFastestInterval(1000);
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-    }
-
 }
