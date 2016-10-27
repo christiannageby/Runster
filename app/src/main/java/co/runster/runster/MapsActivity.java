@@ -36,10 +36,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private LocationManager locationManager;
-    private String provider;
+    //GPS-variabler
+    private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    //konstanta variabler(FINAL)
+    private final String RUNSTER_TAG = "RUNSTER";
 
     private GoogleMap map;
     public Marker YouPos;
@@ -53,6 +56,84 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
+                .addApi(LocationServices.API)
+                .build();
+
+        locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(500)
+                .setFastestInterval(1000)
+                .setSmallestDisplacement(0.5f);
+
+    }
+
+    //region GPS Functions(Connect, Suspended, Failed)
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(RUNSTER_TAG, "Location services Connected");
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (lastLocation == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+        }else{
+            //region Permissions Check
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
+            //endregion
+            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
+
+            //om markören är lika med null så ge denne en position osv(KOnfigurera den)
+            //annars flytta markören;
+            if (YouPos == null){
+                YouPos = map.addMarker(new MarkerOptions().position(
+                        new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+                map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+            }else{
+                moveMkr(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+            }
+
+            onLocationChanged(lastLocation);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(RUNSTER_TAG, "Location Services suspended!");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(RUNSTER_TAG, "Location services failed to connect!");
+    }
+    //endregion
+
+    //region Application Actions(OnPause, OnResume)
+    @Override
+    protected void onResume(){
+        super.onResume();
+        googleApiClient.connect();
+    }
+
+    @Override
+    protected void  onPause(){
+        super.onPause();
+        if (googleApiClient.isConnected()){
+            googleApiClient.disconnect();
+        }
+    }
+    //endregion
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i(RUNSTER_TAG, location.toString());
+        moveMkr(new LatLng(location.getLatitude(), location.getLongitude()));
     }
 
     public void moveMkr(LatLng newLocation) {
@@ -72,10 +153,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.setMapType(1);
         map.setMinZoomPreference(18.0f);
         map.setMaxZoomPreference(18.0f);
-
-        YouPos = map.addMarker(new MarkerOptions().position(
-                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
-        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
     }
 }
