@@ -8,3 +8,11 @@
 *c = Tan^-1(√(a) - √(1-a)/1-√(a)*√(1-a))*
 
 *D = R * c*
+
+**SVT-Triangeln**
+
+*S = V*T*
+
+*V = S/T*
+
+*T = S/V*
