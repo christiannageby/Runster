@@ -1,7 +1,7 @@
 # Runster
 
 ##Mattematik
-**Haversin-formeln**
+**Haversin-formeln [x]**
 ```
 a = Sin(∆lat/2)^2 + Cos(lat2) * Cos(Lat) * Sin(∆Long)^2
 
