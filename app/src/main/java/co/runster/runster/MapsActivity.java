@@ -35,12 +35,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient googleApiClient;    //en Google api-klient
     private LocationRequest locationRequest;    //En Positionsfråga
 
-    //konstanta variabler(FINAL)
-    private final String RUNSTER_TAG = "RUNSTER";   //våran tag i Log-Funktionen
-
     private GoogleMap map;  //Kartan
+
+    /*
+        Beräkningsvariabler
+     */
     public Marker YouPos;   //Spelarmarkören
     public Location lastLocation;   //Förra positionen
+    public long time;   //Unixtiden
 
     @Override
     //vad som händer när appen startas
@@ -64,12 +66,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setFastestInterval(1000)   //snabbaste intervallen(ms)
                 .setSmallestDisplacement(0.5f); //minsta rörelsen (0.5 meter);
 
+        time = System.currentTimeMillis() / 1000;   //den nuvarande(i startögonblicket) unix tiden
+
     }
 
     //region GPS Functions(Connect, Suspended, Failed)
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(RUNSTER_TAG, "Location services Connected");
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
 
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
@@ -98,13 +101,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.i(RUNSTER_TAG, "Location Services suspended!");
+    public void onConnectionSuspended(int i){
+        //När Anslutningen avbryts
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(RUNSTER_TAG, "Location services failed to connect!");
+        //När anslutningen failar
     }
     //endregion
 
@@ -131,7 +134,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         double Distance = Haversin.distance(lastLocation, location);
 
-        Toast.makeText(getApplicationContext(), "Distance: " + Distance + "Meters", Toast.LENGTH_SHORT).show(); //gör en toast med vilken distans användaren har flyttat sig
+        if(Distance/(Math.abs((System.currentTimeMillis() / 1000L) - time)) <= 7) {
+            Toast.makeText(getApplicationContext(), "Points revarded", Toast.LENGTH_SHORT).show();
+        }
+
+        time = System.currentTimeMillis() / 1000L;  //sätt tiden till den nuvarande
         lastLocation = location;    //sätt användarens nuvarande pos till den senaste positionen
     }
 
@@ -150,7 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map = googleMap;    //sätt kartan till kartvariabeln(googleMap)
         map.getUiSettings().setRotateGesturesEnabled(false);    //hindra rotering av kameran
         map.setMapType(1);  //Karttyp (1=Karta;2=Satelitbilder)
-        map.setMinZoomPreference(18.0f); //minsta inzoomningen
+        map.setMinZoomPreference(16.0f); //minsta inzoomningen
         map.setMaxZoomPreference(18.0f);    //största inzoomningen
         //båda dessa är lika stora för att hindra användaren att zooma
     }
