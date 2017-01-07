@@ -1,5 +1,7 @@
 package co.runster.runster;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -28,6 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.sql.Time;
 import java.util.Date;
+
+import static android.app.PendingIntent.getActivity;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -66,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setFastestInterval(1000)   //snabbaste intervallen(ms)
                 .setSmallestDisplacement(0.5f); //minsta rörelsen (0.5 meter);
 
-        time = System.currentTimeMillis() / 1000;   //den nuvarande(i startögonblicket) unix tiden
+        //time = System.currentTimeMillis() / 1000;   //den nuvarande(i startögonblicket) unix tiden
 
     }
 
@@ -88,10 +92,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //om markören är lika med null så ge denne en position osv(KOnfigurera den)
             //annars flytta markören;
             if (YouPos == null){
-                YouPos = map.addMarker(new MarkerOptions().position(
-                        new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
-                map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+                if (lastLocation.getLatitude() != 0 || lastLocation.getLongitude() != 0){
+                    //open the map if a location is avalable
+                    YouPos = map.addMarker(new MarkerOptions().position(
+                            new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_i)));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+                }else{
+                    //tvinga använderen att avsluta appen
+                    new AlertDialog.Builder(getApplicationContext())
+                            .setTitle("GPS error")
+                            .setMessage("Please restart again later")
+                            .setPositiveButton("Quit Runster", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    System.exit(500);
+                                }
+                            }).show();
+                }
             }else{
                 moveMkr(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
             }
