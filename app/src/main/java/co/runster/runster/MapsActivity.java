@@ -69,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setFastestInterval(1000)
                 .setSmallestDisplacement(0.5f);
 
-        time = System.currentTimeMillis() / 1000;   //den nuvarande(i startögonblicket) unix tiden
+        time = System.currentTimeMillis() / 1000;
 
     }
 
